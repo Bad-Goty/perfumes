@@ -63,6 +63,35 @@ app.get('/api/getPerfumes', (req, res) => {
   });
 });
 
+app.put('/api/updatePerfume/:id', (req, res) => {
+  const id = req.params.id;
+  const { nombre, diseñador, tamaño, precio, fecha_lanzamiento, genero, conjunto, descuento } = req.body;
+  pool.query(
+    'UPDATE perfumes SET nombre = ?, diseñador = ?, tamaño = ?, precio = ?, fecha_lanzamiento = ?, genero = ?, conjunto = ?, descuento = ? WHERE ID = ?',
+    [nombre, diseñador, tamaño, precio, fecha_lanzamiento, genero, conjunto, descuento, id],
+    (err, results) => {
+      if (err) {
+        console.error('Error ejecutando la consulta:', err);
+        res.status(500).json({ error: 'Error en la base de datos' });
+      } else {
+        res.json({ message: 'Perfume actualizado correctamente' });
+      }
+    }
+  );
+});
+
+app.delete('/api/deletePerfume/:id', (req, res) => {
+  const id = req.params.id;
+  pool.query('DELETE FROM perfumes WHERE ID = ?', [id], (err, results) => {
+    if (err) {
+      console.error('Error ejecutando la consulta:', err);
+      res.status(500).json({ error: 'Error en la base de datos' });
+    } else {
+      res.json({ message: 'Perfume eliminado correctamente' });
+    }
+  });
+});
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
