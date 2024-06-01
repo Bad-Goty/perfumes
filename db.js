@@ -52,6 +52,16 @@ app.put('/api/updateRole', (req, res) => {
   });
 });
 
+app.get('/api/getPerfumes', (req, res) => {
+  pool.query('SELECT * FROM perfumes', (err, results) => {
+    if (err) {
+      console.error('Error ejecutando la consulta:', err);
+      res.status(500).json({ error: 'Error en la base de datos' });
+    } else {
+      res.json(results);
+    }
+  });
+});
 
 
 const PORT = process.env.PORT || 4000;
