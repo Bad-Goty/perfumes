@@ -28,16 +28,17 @@ app.get('/api/getData', (req, res) => {
   });
 });
 
-app.get('/apii/getData', (req, res) => {
-    pool.query('SELECT * FROM materias', (err, results) => {
-      if (err) {
-        console.error('Error ejecutando la consulta:', err);
-        res.status(500).json({ error: 'Error en la base de datos' });
-      } else {
-        res.json(results);
-      }
-    });
+app.delete('/api/deleteUser/:email', (req, res) => {
+  const email = req.params.email;
+  pool.query('DELETE FROM usuarios WHERE email = ?', [email], (err, results) => {
+    if (err) {
+      console.error('Error ejecutando la consulta:', err);
+      res.status(500).json({ error: 'Error en la base de datos' });
+    } else {
+      res.json({ message: 'Usuario eliminado correctamente' });
+    }
   });
+});
 
 
 const PORT = process.env.PORT || 4000;
