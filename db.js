@@ -92,6 +92,22 @@ app.delete('/api/deletePerfume/:id', (req, res) => {
   });
 });
 
+app.post('/api/addPerfume', (req, res) => {
+  const { ID, nombre, diseñador, tamaño, precio, fecha_lanzamiento, genero, conjunto, descuento, imagen } = req.body;
+  pool.query(
+    'INSERT INTO perfumes (ID, nombre, diseñador, tamaño, precio, fecha_lanzamiento, genero, conjunto, descuento, imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    [ID, nombre, diseñador, tamaño, precio, fecha_lanzamiento, genero, conjunto, descuento, imagen],
+    (err, results) => {
+      if (err) {
+        console.error('Error ejecutando la consulta:', err);
+        res.status(500).json({ error: 'Error en la base de datos' });
+      } else {
+        res.json({ message: 'Perfume agregado correctamente' });
+      }
+    }
+  );
+});
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
