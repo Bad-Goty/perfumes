@@ -40,6 +40,19 @@ app.delete('/api/deleteUser/:email', (req, res) => {
   });
 });
 
+app.put('/api/updateRole', (req, res) => {
+  const { email, newRole } = req.body;
+  pool.query('UPDATE usuarios SET admin = ? WHERE email = ?', [newRole, email], (err, results) => {
+    if (err) {
+      console.error('Error ejecutando la consulta:', err);
+      res.status(500).json({ error: 'Error en la base de datos' });
+    } else {
+      res.json({ message: 'Rol actualizado correctamente' });
+    }
+  });
+});
+
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
