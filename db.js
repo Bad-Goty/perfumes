@@ -28,53 +28,6 @@ app.get('/api/getData', (req, res) => {
   });
 });
 
-app.delete('/api/deleteUser/:email', async (req, res) => {
-    const email = req.params.email;
-
-    // Iniciar una transacción para asegurar que todas las operaciones se realicen correctamente
-    const connection = await pool.getConnection();
-
-    try {
-        await connection.beginTransaction();
-
-        // Obtener IDs de órdenes del usuario para eliminar los detalles de las órdenes
-        const [ordenes] = await connection.query('SELECT id FROM ordenes WHERE usuario_email = ?', [email]);
-        const ordenIds = ordenes.map(orden => orden.id);
-
-        // Eliminar los detalles de las órdenes relacionadas
-        if (ordenIds.length > 0) {
-            await connection.query('DELETE FROM detalle_ordenes WHERE orden_id IN (?)', [ordenIds]);
-        }
-
-        // Eliminar las órdenes del usuario
-        await connection.query('DELETE FROM ordenes WHERE usuario_email = ?', [email]);
-
-        // Eliminar los registros relacionados en la tabla carrito
-        await connection.query('DELETE FROM carrito WHERE usuario_email = ?', [email]);
-
-        // Eliminar los registros relacionados en la tabla tarjetas_usuario
-        await connection.query('DELETE FROM tarjetas_usuario WHERE usuario_email = ?', [email]);
-
-        // Eliminar el usuario en la tabla usuarios
-        await connection.query('DELETE FROM usuarios WHERE email = ?', [email]);
-
-        // Si todas las operaciones se realizaron correctamente, confirmar la transacción
-        await connection.commit();
-        
-        res.json({ message: 'Usuario eliminado correctamente' });
-    } catch (err) {
-        // Si ocurrió un error, revertir la transacción
-        await connection.rollback();
-        console.error('Error ejecutando la consulta:', err);
-        res.status(500).json({ error: 'Error en la base de datos' });
-    } finally {
-        // Liberar la conexión
-        connection.release();
-    }
-});
-
-
-
 app.put('/api/updateRole', (req, res) => {
   const { email, newRole } = req.body;
   pool.query('UPDATE usuarios SET admin = ? WHERE email = ?', [newRole, email], (err, results) => {
