@@ -42,15 +42,27 @@ app.put('/api/updateRole', (req, res) => {
 
 app.delete('/api/deleteUser/:email', (req, res) => {
   const email = req.params.email;
-  pool.query('DELETE FROM usuarios WHERE email = ?', [email], (err, results) => {
+  // Verificar si el usuario existe
+  pool.query('SELECT * FROM usuarios WHERE email = ?', [email], (err, results) => {
     if (err) {
       console.error('Error ejecutando la consulta:', err);
       res.status(500).json({ error: 'Error en la base de datos' });
+    } else if (results.length === 0) {
+      res.status(404).json({ error: 'Usuario no encontrado' });
     } else {
-      res.json({ message: 'Usuario eliminado correctamente' });
+      // Eliminar el usuario
+      pool.query('DELETE FROM usuarios WHERE email = ?', [email], (err, results) => {
+        if (err) {
+          console.error('Error ejecutando la consulta:', err);
+          res.status(500).json({ error: 'Error en la base de datos' });
+        } else {
+          res.json({ message: 'Usuario eliminado correctamente' });
+        }
+      });
     }
   });
 });
+
 
 
 app.get('/api/getPerfumes', (req, res) => {
