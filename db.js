@@ -109,6 +109,30 @@ app.post('/api/addPerfume', (req, res) => {
   );
 });
 
+app.get('/api/getOrders', (req, res) => {
+  pool.query('SELECT * FROM ordenes', (err, results) => {
+    if (err) {
+      console.error('Error ejecutando la consulta:', err);
+      res.status(500).json({ error: 'Error en la base de datos' });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
+// Obtener los detalles de una orden específica
+app.get('/api/getOrderDetails/:orden_id', (req, res) => {
+  const ordenId = req.params.orden_id;
+  pool.query('SELECT * FROM detalle_ordenes WHERE orden_id = ?', [ordenId], (err, results) => {
+    if (err) {
+      console.error('Error ejecutando la consulta:', err);
+      res.status(500).json({ error: 'Error en la base de datos' });
+    } else {
+      res.json(results);
+    }
+  });
+});
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
