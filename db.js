@@ -30,12 +30,24 @@ app.get('/api/getData', (req, res) => {
 
 app.delete('/api/deleteUser/:email', async (req, res) => {
     const email = req.params.email;
-    
+
     // Iniciar una transacción para asegurar que todas las operaciones se realicen correctamente
     const connection = await pool.getConnection();
 
     try {
         await connection.beginTransaction();
+
+        // Obtener IDs de órdenes del usuario para eliminar los detalles de las órdenes
+        const [ordenes] = await connection.query('SELECT id FROM ordenes WHERE usuario_email = ?', [email]);
+        const ordenIds = ordenes.map(orden => orden.id);
+
+        // Eliminar los detalles de las órdenes relacionadas
+        if (ordenIds.length > 0) {
+            await connection.query('DELETE FROM detalle_ordenes WHERE orden_id IN (?)', [ordenIds]);
+        }
+
+        // Eliminar las órdenes del usuario
+        await connection.query('DELETE FROM ordenes WHERE usuario_email = ?', [email]);
 
         // Eliminar los registros relacionados en la tabla carrito
         await connection.query('DELETE FROM carrito WHERE usuario_email = ?', [email]);
@@ -60,6 +72,7 @@ app.delete('/api/deleteUser/:email', async (req, res) => {
         connection.release();
     }
 });
+
 
 
 app.put('/api/updateRole', (req, res) => {
