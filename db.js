@@ -120,7 +120,6 @@ app.get('/api/getOrders', (req, res) => {
   });
 });
 
-// Obtener los detalles de una orden específica
 app.get('/api/getOrderDetails/:orden_id', (req, res) => {
   const ordenId = req.params.orden_id;
   pool.query('SELECT * FROM detalle_ordenes WHERE orden_id = ?', [ordenId], (err, results) => {
