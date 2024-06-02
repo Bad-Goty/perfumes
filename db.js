@@ -40,17 +40,43 @@ app.put('/api/updateRole', (req, res) => {
   });
 });
 
-app.delete('/api/deleteUser/:email', (req, res) => {
-  const email = req.params.email;
-  pool.query('DELETE FROM usuarios WHERE email = ?', [email], (err, results) => {
-    if (err) {
-      console.error('Error ejecutando la consulta:', err);
-      res.status(500).json({ error: 'Error en la base de datos' });
-    } else {
-      res.json({ message: 'Usuario eliminado correctamente' });
+app.delete('/api/deleteUser/:email', async (req, res) => {
+    const email = req.params.email;
+
+    let connection;
+
+    try {
+        // Intentar obtener una conexión del pool
+        connection = await pool.getConnection();
+
+        // Iniciar una transacción
+        await connection.beginTransaction();
+
+        // Eliminar los registros relacionados en la tabla tarjetas_usuario
+        await connection.query('DELETE FROM tarjetas_usuario WHERE usuario_email = ?', [email]);
+
+        // Eliminar el usuario en la tabla usuarios
+        await connection.query('DELETE FROM usuarios WHERE email = ?', [email]);
+
+        // Confirmar la transacción si todas las operaciones se realizaron correctamente
+        await connection.commit();
+
+        res.json({ message: 'Usuario y tarjetas eliminados correctamente' });
+    } catch (err) {
+        // Revertir la transacción si ocurrió un error
+        if (connection) {
+            await connection.rollback();
+        }
+        console.error('Error ejecutando la consulta:', err);
+        res.status(500).json({ error: 'Error en la base de datos' });
+    } finally {
+        // Liberar la conexión si existe
+        if (connection) {
+            connection.release();
+        }
     }
-  });
 });
+
 
 
 app.get('/api/getPerfumes', (req, res) => {
