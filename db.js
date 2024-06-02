@@ -40,7 +40,7 @@ app.put('/api/updateRole', (req, res) => {
   });
 });
 
-pp.delete('/api/deleteUser/:email', (req, res) => {
+app.delete('/api/deleteUser/:email', (req, res) => {
   const email = req.params.email;
   pool.query('DELETE FROM usuarios WHERE email = ?', [email], (err, results) => {
     if (err) {
