@@ -40,18 +40,6 @@ app.put('/api/updateRole', (req, res) => {
   });
 });
 
-app.delete('/api/deleteTarjeta/:email', (req, res) => {
-  const email = req.params.email;
-  pool.query('DELETE FROM tarjetas_usuario WHERE usuario_email = ?', [email], (err, results) => {
-    if (err) {
-      console.error('Error ejecutando la consulta:', err);
-      res.status(500).json({ error: 'Error en la base de datos' });
-    } else {
-      res.json({ message: 'Tarjetas eliminadas correctamente' });
-    }
-  });
-});
-
 app.delete('/api/deleteUser/:email', (req, res) => {
   const email = req.params.email;
   pool.query('DELETE FROM usuarios WHERE email = ?', [email], (err, results) => {
