@@ -42,26 +42,37 @@ app.put('/api/updateRole', (req, res) => {
 
 app.delete('/api/deleteUser/:email', (req, res) => {
   const email = req.params.email;
+
   // Verificar si el usuario existe
   pool.query('SELECT * FROM usuarios WHERE email = ?', [email], (err, results) => {
     if (err) {
       console.error('Error ejecutando la consulta:', err);
-      res.status(500).json({ error: 'Error en la base de datos' });
-    } else if (results.length === 0) {
-      res.status(404).json({ error: 'Usuario no encontrado' });
-    } else {
-      // Eliminar el usuario
+      return res.status(500).json({ error: 'Error en la base de datos' });
+    } 
+
+    if (results.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    } 
+
+    // Eliminar registros relacionados en tarjetas_usuario
+    pool.query('DELETE FROM tarjetas_usuario WHERE usuario_email = ?', [email], (err, results) => {
+      if (err) {
+        console.error('Error eliminando las tarjetas del usuario:', err);
+        return res.status(500).json({ error: 'Error en la base de datos' });
+      } 
+
+      // Ahora eliminar el usuario
       pool.query('DELETE FROM usuarios WHERE email = ?', [email], (err, results) => {
         if (err) {
-          console.error('Error ejecutando la consulta:', err);
-          res.status(500).json({ error: 'Error en la base de datos' });
-        } else {
-          res.json({ message: 'Usuario eliminado correctamente' });
-        }
+          console.error('Error eliminando el usuario:', err);
+          return res.status(500).json({ error: 'Error en la base de datos' });
+        } 
+        return res.json({ message: 'Usuario y sus tarjetas eliminados correctamente' });
       });
-    }
+    });
   });
 });
+
 
 
 
