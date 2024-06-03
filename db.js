@@ -40,7 +40,7 @@ app.put('/api/updateRole', (req, res) => {
   });
 });
 
-app.delete('/api/deleteUser/:email', (req, res) => {
+app.delete('/api/deleteUserCard/:email', (req, res) => {
   const email = req.params.email;
 
   // Verificar si el usuario existe
@@ -61,19 +61,10 @@ app.delete('/api/deleteUser/:email', (req, res) => {
         return res.status(500).json({ error: 'Error en la base de datos' });
       } 
 
-      // Ahora eliminar el usuario
-      pool.query('DELETE FROM usuarios WHERE email = ?', [email], (err, results) => {
-        if (err) {
-          console.error('Error eliminando el usuario:', err);
-          return res.status(500).json({ error: 'Error en la base de datos' });
-        } 
-        return res.json({ message: 'Usuario y sus tarjetas eliminados correctamente' });
-      });
+      return res.json({ message: 'Tarjetas del usuario eliminadas correctamente' });
     });
   });
 });
-
-
 
 
 app.get('/api/getPerfumes', (req, res) => {
